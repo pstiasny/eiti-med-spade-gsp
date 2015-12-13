@@ -77,6 +77,39 @@
 \section{Defnicja zadania}
 
 \subsection{Reguły sekwencyjne}
+
+Problem odkrywania wzorców sekwencyjnych możemy opisać następująco: Zdefiniujmy
+\( \mathcal I = \{ i_1, i_2, \ldots, i_m \} \) jako alfabet {\em przedmiotów}
+({\em items}).  {\em Zdarzenie} ({\em event}) to niepusty zbiór przedmiotów \(
+( i_1i_2\ldots i_k ) \) oraz czas jego wystąpienia.  {\em Sekwencja} ({\em
+sequence}) to uporządkowana lista zdarzeń \( ( \alpha_1 \rightarrow \alpha_2 \rightarrow \cdots \rightarrow \alpha_q ) \).
+Mówimy, że sekwencja \( \alpha \) {\em zawiera} sekwencję \( \beta \) jeśli
+istnieje mapowanie \( f \) takie, że:
+\begin{enumerate}
+    \item Dla każdego zdarzenia w \( \alpha \): \( \alpha_i \subseteq f(\alpha_i) \),
+    \item \( f(\alpha_i) \) zachodzi przed \( f(\alpha_j) \) jesli \( \alpha_i \)
+        zachodzi przed \( \alpha_j \).
+\end{enumerate}
+
+Istnieje baza danych \( \mathcal D \) zdefiniowana jako zbiór sekwencji wraz
+z odpowiadającymi im identyfikatorami {\em sid}.  Identyfikatorem każdego ze
+zdarzeń w sekwencji jest jego czas wystąpienia {\em eid}.
+
+{\em Wsparcie} ({\em support}) sekwencji rozumiemy jako liczbę wszystkich
+sekwencji w bazie \( \mathcal D \) które zawierają tę sekwencję.  Sekwencja
+jest {\em częsta}, jeśli jej wsparcie jest wyższe niż wybrana przez użytkownika
+wartość {\em min\_sup}.  Zadanie odkrywania wzorców sekwencyjnych w bazie \(
+\mathcal D \) przy ustalonej wartości {\em min\_sup} definiujemy jako zadanie
+znalezienia wszystkich sekwencji częstych w tej bazie.
+
+Przez {\em reguły sekwencyjne} rozumiemy wyrażenia postaci \( \alpha
+\Rightarrow \beta \), gdzie \(\beta \) zawiera \( \alpha \).  Znając wsparcia
+rozważanych sekwencji możemy wyznaczyć {\em zaufanie} ({\em confidence})
+reguły jako \( \text{conf}(\alpha \Rightarrow \beta) = \frac{\text{support}(\alpha)}{\text{support}(\beta)}\).
+Zadanie odkrywania reguł sekwencyjnych polega na znalezieniu wszystkich reguł
+takich, że sekwencje są częste i zaufanie jest większe niż wybrana przez
+użytkownika wartość {\em min\_conf}.
+
 \subsection{Algorytm SPADE}
 \subsection{Algorytm GSP}
 \subsection{Porównanie}
