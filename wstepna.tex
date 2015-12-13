@@ -111,6 +111,37 @@ takich, że sekwencje są częste i zaufanie jest większe niż wybrana przez
 użytkownika wartość {\em min\_conf}.
 
 \subsection{Algorytm SPADE}
+W odróżnieniu od GSP, SPADE wymaga jedynie pojedynczego odczytu bazy danych.
+Algorytm ten korzysta z wydajnej pośredniej reprezentacji zbioru sekwencji
+częstych.
+
+\subsubsection{Struktury danych}
+Budowany jest graf reprezentujący podkratę relacji zawierania sekwencji.  W
+kracie tej poprzednikami \( k \)-elementowej sekwencji są dwie \( k-1 \)
+-elemetnowe sekwencje o wspólnym, \( k-2 \)-elementowym prefixie.  Następniki
+są generowane przez {\em złączenie czasowe} dwóch takich poprzedników.  Węzeł
+grafu przechowuje sekwencję oraz listę par (sid, eid) odpowiadających
+wystąpieniom ostatniego elementu sekwencji.  Autor dowodzi, że taka
+reprezenacja jest wystarczająca do wygenerowania wszystkich sekwencji częstych.
+
+\subsubsection{Złączenie czasowe}
+Mając dwie sekwencje długości \( k-1 \) i odpowiadające im listy
+identyfikatorów algorytm generuje nowy zbiór sekwencji długości \( k \)
+o wspólnym prefixie długości \( k-2 \).  W zależności od rodzaju złączanych
+sekwencji wymaga to przejrzenia list identyfikatorów pod kątem występowania
+zdarzeń w tym samym czasie i/lub następstwa zdarzeń w czasie.  Sekwencje
+o wsparciu mniejszym niż {\em min\_sup} są odrzucane.
+
+\subsubsection{Zliczanie wsparcia}
+Przy przyjętych strukturach danych obliczenie wsparcia sekwencji sprowadza się
+do zliczenia unikatowych identyfikatorów sekwenci {\em sid} w liście
+identyfikatorów interesującego nas węzła.
+
+\subsubsection{Przebieg algorytmu}
+Sekwencje jednoelementowe są wczytywane z bazy danych.  Możliwe jest też
+wczytanie wstępnie przetworzonych sekwencji dwuelementowych.  Następnie algorytm
+przeszukując wgłab lub wszerz rekurencyjnie buduje graf w sposób opisany powyżej.
+
 \subsection{Algorytm GSP}
 \subsection{Porównanie}
 
