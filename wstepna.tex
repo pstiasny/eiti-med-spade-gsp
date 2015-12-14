@@ -25,7 +25,6 @@
 \usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
 \usepackage[english]{babel} % English language/hyphenation
 \usepackage{amsmath,amsfonts,amsthm} % Math packages
-
 \usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
 
 \usepackage{sectsty} % Allows customizing section commands
@@ -47,6 +46,8 @@
 
 \setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
 
+\usepackage{hyperref}
+
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
 %----------------------------------------------------------------------------------------
@@ -64,7 +65,7 @@
 
 \author{Tomasz Pęksa, Paweł Stiasny} % Your name
 
-\date{\normalsize13.12.2015} % Today's date or a custom date
+\date{\normalsize14.12.2015} % Today's date or a custom date
 
 \begin{document}
 
@@ -111,7 +112,7 @@ takich, że sekwencje są częste i zaufanie jest większe niż wybrana przez
 użytkownika wartość {\em min\_conf}.
 
 \subsection{Algorytm GSP}
-Wykrywanie reguł sekwencyjnych zgodnych z opisanym modelem posiada pewne niedogodności. Autorzy %TODO cite
+Wykrywanie reguł sekwencyjnych zgodnych z opisanym modelem posiada pewne niedogodności. Autorzy \cite{gsp}
 zwracają uwagę na:
 \begin{description}
     \item[Brak ograniczeń czasowych] Następnik reguły może nastąpić dowolnie późno po jej poprzedniku. Prowadzi to do wykrywania nadmiarowych powiązań pomiędzy zdarzeniami.
@@ -164,16 +165,36 @@ identyfikatorów interesującego nas węzła.
 \subsubsection{Przebieg algorytmu}
 Sekwencje jednoelementowe są wczytywane z bazy danych.  Możliwe jest też
 wczytanie wstępnie przetworzonych sekwencji dwuelementowych.  Następnie algorytm
-przeszukując wgłab lub wszerz rekurencyjnie buduje graf w sposób opisany powyżej.
-
-\subsection{Porównanie}
+przeszukując w głąb lub wszerz rekurencyjnie buduje graf w sposób opisany powyżej.
 
 \section{Projekt realizacji}
-\subsection{Reguły sekwencyjne}
-\subsection{Algorytm SPADE}
-\subsection{Algorytm GSP}
-\subsection{Porównanie}
+\subsection{Przykładowy zbiór danych}
+W projekcie wykorzystane będą dane o historii zmian stron Wikipedii dostępne na \\\hyperref[AA]{https://en.wikipedia.org/wiki/WP:DD}.
+Podstawową transakcję wraz z jedynym produktem będzie stanowić edycja pojedynczej strony. Edycje będą grupowane w sekwencje edycji wykonanych przez jednego użytkownika.
 
+\subsection{Implementacja}
+Projekt zostanie zrealizowany w języku Scala z użyciem silnika przetwarzania danych \emph{Apache Spark}.
+W celu realizacji głównego zadania -- wykrycia reguł sekwencyjnych -- powstaną 2 zadania (w sensie Apache Spark) odpowiadające każdemu z omówionych algorytmów.
+
+Dodatkowo powstanie zadanie przekształcające dostępne dane do postaci optymalnej do przetworzenia.
+
+\subsection{Porównanie}
+\subsubsection{Weryfikacja poprawności implementacji}
+Główną metodą weryfikacji poprawności wykonanej implementacji będzie porównanie wyników pracy na wybranych fragmentach danych.
+
+\subsubsection{Porównanie algorytmów}
+Najbardziej istotną różnicą pomiędzy algorytmami wydaje się być liczba odczytów danych (GSP czyta dane wielokrotnie --- Spade -- jeden raz).
+W celu porównania zbadamy czas analizy danych z użyciem obu metod.
+
+\renewcommand{\refname}{Bibliografia}
+
+  \begin{thebibliography}{1}
+
+  \bibitem{gsp} Ramakrishnan Srikant, Rakesh Agrawal {\em Mining Sequential Patterns: Generalizations and Performance Improvements} 10 June 2005.
+
+  \bibitem{spade} Mohammed J. Zaki {\em SPADE: An Efficient Algorithm for Mining Frequent Sequences} 2001.
+
+  \end{thebibliography}
 
 \end{document}
 
