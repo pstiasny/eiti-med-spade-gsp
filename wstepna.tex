@@ -110,17 +110,41 @@ Zadanie odkrywania reguł sekwencyjnych polega na znalezieniu wszystkich reguł
 takich, że sekwencje są częste i zaufanie jest większe niż wybrana przez
 użytkownika wartość {\em min\_conf}.
 
+\subsection{Algorytm GSP}
+Wykrywanie reguł sekwencyjnych zgodnych z opisanym modelem posiada pewne niedogodności. Autorzy %TODO cite
+zwracają uwagę na:
+\begin{description}
+    \item[Brak ograniczeń czasowych] Następnik reguły może nastąpić dowolnie późno po jej poprzedniku. Prowadzi to do wykrywania nadmiarowych powiązań pomiędzy zdarzeniami.
+    \item[Nadmiernie ścisła definicja transakcji] Wszystkie przedmioty dotyczące jednej reguły muszą wystąpić w pojedynczej transakcji.
+    \item[Brak powiązań między przedmiotami] Ścisłe określenie przedmiotu występującego w transakcji nie pozwala na uwzględnienie w poszukiwaniu zależności przedmiotów o zbliżonym charakterze.
+\end{description}
+
+Algorytm \emph{Generalized Sequential Patterns} (GSP) powstał w celu zniwelowania ograniczeń dotychczasowego podejścia.
+
+Wprowadza:
+\begin{itemize}
+    \item okno czasowe, które pozwala na łączenie występujących krótko po sobie transakcji w jedną,
+    \item ograniczenia czasu występowania zdarzeń,
+    \item wykorzystanie taksonomii w celu generalizacji znaczenia przedmiotów.
+\end{itemize}
+
+Algorytm GSP wielokrotnie przebiega po zbiorze danych. W pierwszej iteracji zlicza wystąpienia pojedynczych przedmiotów w sekwencjach danych. Następnie, iteracyjnie
+\begin{enumerate}
+    \item systematycznie rozszerza wynik poprzedniej iteracji tworząc wszystkie potencjalnie częste reguły,
+    \item wylicza wsparcie utworzonych kandydatów pozostawiając jedynie te, które spełniają zadane kryteria.
+\end{enumerate}
+
 \subsection{Algorytm SPADE}
 W odróżnieniu od GSP, SPADE wymaga jedynie pojedynczego odczytu bazy danych.
 Algorytm ten korzysta z wydajnej pośredniej reprezentacji zbioru sekwencji
 częstych.
 
 \subsubsection{Struktury danych}
-Budowany jest graf reprezentujący podkratę relacji zawierania sekwencji.  W
+Budowany jest graf reprezentujący podkratę relacji zawierania sekwencji.  W
 kracie tej poprzednikami \( k \)-elementowej sekwencji są dwie \( k-1 \)
 -elemetnowe sekwencje o wspólnym, \( k-2 \)-elementowym prefixie.  Następniki
 są generowane przez {\em złączenie czasowe} dwóch takich poprzedników.  Węzeł
-grafu przechowuje sekwencję oraz listę par (sid, eid) odpowiadających
+grafu przechowuje sekwencję oraz listę par (sid, eid) odpowiadających
 wystąpieniom ostatniego elementu sekwencji.  Autor dowodzi, że taka
 reprezentacja jest wystarczająca do wygenerowania wszystkich sekwencji częstych.
 
@@ -142,7 +166,6 @@ Sekwencje jednoelementowe są wczytywane z bazy danych.  Możliwe jest też
 wczytanie wstępnie przetworzonych sekwencji dwuelementowych.  Następnie algorytm
 przeszukując wgłab lub wszerz rekurencyjnie buduje graf w sposób opisany powyżej.
 
-\subsection{Algorytm GSP}
 \subsection{Porównanie}
 
 \section{Projekt realizacji}
