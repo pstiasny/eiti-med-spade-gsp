@@ -1,3 +1,4 @@
+import System.Environment
 import Spade
 
 
@@ -25,12 +26,6 @@ d = [
     ]
 
 
-dropSecondFromLastItem (Sequence (s1:s2:t)) =
-    Sequence $ case (s1, s2) of
-        (SequenceAtom s1a, _) -> s1:t
-        (EventAtom s1a, SequenceAtom s2a) -> (SequenceAtom s1a):t
-        (EventAtom s1a, EventAtom s2a) -> s1:t
-
 sequenceToHtml :: Sequence -> String
 sequenceToHtml (Sequence l) =
     foldl (++) "" $ map atomToHtml $ reverse l
@@ -54,14 +49,21 @@ printSequence node =
         putStrLn "</table>>]"
 
         let printGeneratedBy s = putStrLn $ "    \"" ++ seqStr ++ "\" -- \"" ++ (show $ seq_ s) ++ "\""
-        mapM_ printGeneratedBy (generatedBy node)
+        if length (generatedBy node) == 0
+            then putStrLn $ "    \"" ++ seqStr ++ "\" -- \"{}\""
+            else mapM_ printGeneratedBy (generatedBy node)
 
 main = do
+    args <- getArgs
+
     let t = loadDatabase d
     let fs = enumerateFrequentSeq 2 t
 
-    {-print fs-}
+    let showSeqSupport node = (show $ seq_ node) ++ " [" ++ (show $ support node) ++ "]"
+    if "-g" `elem` args
+        then do
+            putStrLn "graph sequences {"
+            mapM_  printSequence fs
+            putStrLn "}"
+        else mapM_ putStrLn $ map showSeqSupport fs
 
-    putStrLn "graph sequences {"
-    mapM_  printSequence fs
-    putStrLn "}"

@@ -3,5 +3,5 @@ main: *.hs
 
 
 graph.ps: main
-	./main > ggraph.dot
+	./main -g > ggraph.dot
 	dot -Tps ggraph.dot -o graph.ps
