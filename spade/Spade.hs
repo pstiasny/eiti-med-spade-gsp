@@ -35,11 +35,11 @@ loadDatabase db = map makeAtom db
 
 generateCandidates :: Node -> Node -> [Node]
 generateCandidates left right =
-    {-assert (prefixLeft == prefixRight) $-}
+    assert (prefixLeft == prefixRight) $
     case (atomLeft, atomRight) of
         (EventAtom al, EventAtom ar) ->
             if al <= ar then [] else [
-                makeNode atomLeft atomRight (eventMatch idsLeft idsRight)
+                makeNode atomRight atomLeft (eventMatch idsLeft idsRight)
             ]
         (EventAtom al, SequenceAtom ar) -> [
                 makeNode atomLeft atomRight (temporalMatch idsLeft idsRight)
@@ -48,14 +48,17 @@ generateCandidates left right =
             case (compare al ar) of
                 LT -> [makeNode atomLeft atomRight (eventMatch idsLeft idsRight)]
                 EQ -> []
-                GT -> [makeNode (SequenceAtom ar) (EventAtom al) (eventMatch idsLeft idsRight)]
+                GT -> [makeNode (SequenceAtom ar)
+                                (EventAtom al)
+                                (eventMatch idsLeft idsRight)]
         (SequenceAtom al, SequenceAtom ar) ->
             case (compare al ar) of
-                LT -> []
+                LT -> [
+                    makeNode atomLeft atomRight (temporalMatch idsLeft idsRight),
+                    makeNode atomLeft (EventAtom ar) (eventMatch idsLeft idsRight)
+                    ]
                 EQ -> [makeNode atomRight atomLeft (temporalMatch idsLeft idsRight)]
                 GT -> [
-                    makeNode atomLeft (EventAtom ar) (eventMatch idsLeft idsRight),
-                    makeNode atomRight atomLeft (temporalMatch idsRight idsLeft),
                     makeNode atomLeft atomRight (temporalMatch idsLeft idsRight)
                     ]
     where Sequence (atomLeft:prefixLeft) = seq_ left
@@ -65,8 +68,8 @@ generateCandidates left right =
           makeNode a1 a2 idList = Node {seq_ = Sequence (a2:a1:prefixLeft),
                                         idList = idList,
                                         support = supportOf idList,
-                                        generatedBy = [left, right]}
-                                        {-generatedBy = [left]}-}
+                                        {-generatedBy = [left, right]}-}
+                                        generatedBy = [left]}
 
 
 temporalJoin :: Int -> Node -> Node -> [Node]
@@ -77,12 +80,10 @@ temporalJoin minSup l r =
 
 enumerateFrequentSeq :: Int -> [Node] -> [Node]
 enumerateFrequentSeq minSup nodes =
-    let seed = zip nodes (tails nodes)
-
-        generateClass :: (Node, [Node]) -> [Node]
-        generateClass (leftAtom, rightAtoms) =
+    let generateClass :: Node -> [Node]
+        generateClass leftAtom =
             foldMap (temporalJoin minSup leftAtom) nodes
 
-        prefixClasses = map generateClass seed
+        prefixClasses = map generateClass nodes
 
     in (foldMap (enumerateFrequentSeq minSup) prefixClasses) ++ nodes
