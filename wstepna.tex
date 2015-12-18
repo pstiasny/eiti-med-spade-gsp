@@ -188,11 +188,6 @@ dziejszym wymaganiom i możliwościom sprzętu.  Uruchomimy również klaster S
 i zbadamy, czy wykorzystanie tej technologii wpłynie na zgodność rezaltutatów z
 oczekiwaniami - wynikami eksperymentów przedstawionymi przez autorów.
 
-Ze względu na charakterystyki algorytmów oczekujemy, że SPADE będzie szybszy
-przede wszystkim dla niskich wartości minimalnego wsparcia -- oznacza to
-bowiem mniej sekwencji odrzuconych we wczesnych przebiegach algorytmu 
-i w przypadku GSP konieczność kolejnych odczytów całej bazy danych.
-
 \subsubsection{Dane syntetyczne}
 W celu badania wydajności wygenerujemy dane syntetyczne wg. następującego
 algorytmu zaimplementowanego w projekcie IBM Quest:
@@ -212,10 +207,15 @@ oraz parametrami statystycznymi zbioru danych.
 
 \subsubsection{Testy wydjanościowe}
 Przetestujemy zbudowane przez nas implentacje ze zbiorami wygenrowanymi
-za pomocą różnych wartości parametrów generatora i wartościami minimalnego
+za pomocą różnych wartości parametrów generatora i z różnymi wartościami minimalnego
 wsparcia.  Zbadamy różnice czasów wykonania dla różnych liczb sekwencji,
 zdarzeń i rozmiarów zdarzeń a także długości sekwencji częstych i zbiorów
 częstych.
+
+Ze względu na charakterystyki algorytmów oczekujemy, że SPADE będzie szybszy
+przede wszystkim dla niskich wartości minimalnego wsparcia -- oznacza to
+bowiem mniej sekwencji odrzuconych we wczesnych przebiegach algorytmu
+i w przypadku GSP konieczność kolejnych odczytów całej bazy danych.
 
 \appendix
 \section{Lista zmian}
