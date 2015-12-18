@@ -178,13 +178,44 @@ W celu realizacji głównego zadania -- wykrycia reguł sekwencyjnych -- powstan
 
 Dodatkowo powstanie zadanie przekształcające dostępne dane do postaci optymalnej do przetworzenia.
 
-\subsection{Porównanie}
-\subsubsection{Weryfikacja poprawności implementacji}
+\subsection{Weryfikacja poprawności implementacji}
 Główną metodą weryfikacji poprawności wykonanej implementacji będzie porównanie wyników implementacji wykonanych w ramach tej pracy i wyników implementacji z pakietu \emph{arulesSequences} języka \emph{R} na wybranych fragmentach danych.
 
-\subsubsection{Porównanie algorytmów}
-Najbardziej istotną różnicą pomiędzy algorytmami wydaje się być liczba odczytów danych (GSP czyta dane wielokrotnie --- Spade -- jeden raz).
-W celu porównania zbadamy czas analizy danych z użyciem obu metod w zależności od rozmiaru danych wejściowych.
+\subsection{Analiza wydajności algorytmów}
+Jako część realizacji zadania odtworzymy ekspmerymenty opisane w \cite{spade}
+a~także zbadamy zachowanie algorytmów dla zbiorów danych odpowiadających
+dziejszym wymaganiom i możliwościom sprzętu.  Uruchomimy również klaster Spark
+i zbadamy, czy wykorzystanie tej technologii wpłynie na zgodność rezaltutatów z
+oczekiwaniami - wynikami eksperymentów przedstawionymi przez autorów.
+
+Ze względu na charakterystyki algorytmów oczekujemy, że SPADE będzie szybszy
+przede wszystkim dla niskich wartości minimalnego wsparcia -- oznacza to
+bowiem mniej sekwencji odrzuconych we wczesnych przebiegach algorytmu 
+i w przypadku GSP konieczność kolejnych odczytów całej bazy danych.
+
+\subsubsection{Dane syntetyczne}
+W celu badania wydajności wygenerujemy dane syntetyczne wg. następującego
+algorytmu zaimplementowanego w projekcie IBM Quest:
+\begin{enumerate}
+    \item Zbuduj zbiór \( N_I \) maksymalnych zdarzeń o średniej długości \( I \)
+          przez losowy wybór z \( N \) przedmiotów,
+    \item Zbuduj zbiór \( N_S \) maksymalnych sekwencji o średniej długości \( S \)
+          przypisując zdarzenia z \( N_I \) do każdej z sekwencji,
+    \item Zbuduj sekwencję wejściową o średnio \( C \) zdarzeniach przypisując
+          sekwencję z \( N_S \) do różnych elementów, zachowując średnią długość
+          zdarzenia \( T \).
+    \item Powtarzaj proces do wygenerowania \( D \) sekwencji wejściowych.
+\end{enumerate}
+
+Zastosowanie generatora pozwoli nam na zachowanie kontroli nad rozmiarem
+oraz parametrami statystycznymi zbioru danych.
+
+\subsubsection{Testy wydjanościowe}
+Przetestujemy zbudowane przez nas implentacje ze zbiorami wygenrowanymi
+za pomocą różnych wartości parametrów generatora i wartościami minimalnego
+wsparcia.  Zbadamy różnice czasów wykonania dla różnych liczb sekwencji,
+zdarzeń i rozmiarów zdarzeń a także długości sekwencji częstych i zbiorów
+częstych.
 
 \renewcommand{\refname}{Bibliografia}
 
