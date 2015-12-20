@@ -168,10 +168,6 @@ wczytanie wstępnie przetworzonych sekwencji dwuelementowych.  Następnie algory
 przeszukując w głąb lub wszerz rekurencyjnie buduje graf w sposób opisany powyżej.
 
 \section{Projekt realizacji}
-\subsection{Przykładowy zbiór danych}
-W projekcie wykorzystane będą dane o historii zmian stron Wikipedii dostępne na \\\hyperref[AA]{https://en.wikipedia.org/wiki/WP:DD}.
-Podstawową transakcję wraz z jedynym produktem będzie stanowić edycja pojedynczej strony. Edycje będą grupowane w sekwencje edycji wykonanych przez jednego użytkownika.
-
 \subsection{Implementacja}
 Projekt zostanie zrealizowany w języku Scala z użyciem silnika przetwarzania danych \emph{Apache Spark}.
 W celu realizacji głównego zadania -- wykrycia reguł sekwencyjnych -- powstaną 2 zadania (w sensie Apache Spark) odpowiadające każdemu z omówionych algorytmów.
