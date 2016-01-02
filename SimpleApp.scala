@@ -59,24 +59,19 @@ case class IdList(events: List[(Long, Long)]) extends Serializable {
 case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
   var support = idList.support
 
-  override def toString() = {
-    var s = ""
-    this.sequence.reverse.foreach(a => {
-      a match {
-        case SequenceAtom(i) => s += "-> " + i
-        case EventAtom(i)    => s += " " + i
-      }
-    })
-
-    s += " [%s]".format(idList.support)
-    s
-  }
+  override def toString(): String =
+    this.sequence.reverse
+      .map(a => {
+        a match {
+          case SequenceAtom(i) => "-> " + i
+          case EventAtom(i)    => " " + i
+        }
+      })
+      .reduce(_+_) + " [%s]".format(this.support)
 
   def join(right: Node): List[Node] = {
-    val Node(seqLeft, idsLeft) = this
-    val Node(seqRight, idsRight) = right
-    val al :: prefix = seqLeft
-    val ar :: prefixRight = seqRight
+    val Node(al :: prefix, idsLeft) = this
+    val Node(ar :: prefixRight, idsRight) = right
     require(prefix == prefixRight)
 
     def tj() = idsLeft.temporalJoin(idsRight)
@@ -87,20 +82,20 @@ case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
     (al, ar) match {
       case (EventAtom(il), EventAtom(ir)) =>
         if (il <= ir) List()
-        else          List(makeNode(ar, al, ej()))
+        else          List(makeNode(ar, al, ej))
 
       case (EventAtom(il), SequenceAtom(ir)) =>
-        List(makeNode(al, ar, tj()))
+        List(makeNode(al, ar, tj))
 
       case (SequenceAtom(il), EventAtom(ir)) =>
-        if (il < ir)       List(makeNode(al, ar, ej()))
+        if (il < ir)       List(makeNode(al, ar, ej))
         else if (il == ir) List()
-        else               List(makeNode(SequenceAtom(ir), EventAtom(il), ej()))
+        else               List(makeNode(SequenceAtom(ir), EventAtom(il), ej))
 
       case (SequenceAtom(il), SequenceAtom(ir)) =>
-        if (il < ir)       List(makeNode(al, ar, tj()),
-                                makeNode(al, EventAtom(ir), ej()))
-        else               List(makeNode(al, ar, tj()))
+        if (il < ir)       List(makeNode(al, ar, tj),
+                                makeNode(al, EventAtom(ir), ej))
+        else               List(makeNode(al, ar, tj))
     }
   }
 }
