@@ -61,7 +61,7 @@ case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
 
   override def toString() = {
     var s = ""
-    this.sequence.foreach(a => {
+    this.sequence.reverse.foreach(a => {
       a match {
         case SequenceAtom(i) => s += "-> " + i
         case EventAtom(i)    => s += " " + i
@@ -111,6 +111,15 @@ object SimpleApp {
     Node(List(SequenceAtom(item)), IdList(ids))
   }
 
+  def enumerateFrequentSeq(minSup: Long, atomNodes: Iterable[Node]): Iterable[Node] = {
+    def generateClass(leftAtom: Node): Iterable[Node] =
+      atomNodes.flatMap(leftAtom.join(_)).filter(_.support >= minSup)
+
+    val prefixClasses = atomNodes.map(generateClass)
+
+    prefixClasses.flatMap(enumerateFrequentSeq(minSup, _)) ++ atomNodes
+  }
+
   def main(args: Array[String]) {
     val horizontalDbPath = "/home/pawel/dev/bolidupa/med/projekt/db.horizontal"
     val minSup = 2
@@ -135,5 +144,7 @@ object SimpleApp {
       .cache()
 
     frequentItems.foreach(node => println(node))
+    enumerateFrequentSeq(minSup, frequentItems.collect()) // TODO
+      .foreach(node => println(node))
   }
 }
