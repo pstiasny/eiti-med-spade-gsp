@@ -56,7 +56,7 @@ case class IdList(events: List[(Long, Long)]) extends Serializable {
 }
 
 
-case class Node(sequence: Array[Atom], idList: IdList) extends Serializable {
+case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
   var support = idList.support
 
   override def toString() = {
@@ -71,12 +71,44 @@ case class Node(sequence: Array[Atom], idList: IdList) extends Serializable {
     s += " [%s]".format(idList.support)
     s
   }
+
+  def join(right: Node): List[Node] = {
+    val Node(seqLeft, idsLeft) = this
+    val Node(seqRight, idsRight) = right
+    val al :: prefix = seqLeft
+    val ar :: prefixRight = seqRight
+    require(prefix == prefixRight)
+
+    def tj() = idsLeft.temporalJoin(idsRight)
+    def ej() = idsLeft.eventJoin(idsRight)
+    def makeNode(a1: Atom, a2: Atom, idList: IdList) =
+      Node(a2 :: a1 :: prefix, idList)
+
+    (al, ar) match {
+      case (EventAtom(il), EventAtom(ir)) =>
+        if (il <= ir) List()
+        else          List(makeNode(ar, al, ej()))
+
+      case (EventAtom(il), SequenceAtom(ir)) =>
+        List(makeNode(al, ar, tj()))
+
+      case (SequenceAtom(il), EventAtom(ir)) =>
+        if (il < ir)       List(makeNode(al, ar, ej()))
+        else if (il == ir) List()
+        else               List(makeNode(SequenceAtom(ir), EventAtom(il), ej()))
+
+      case (SequenceAtom(il), SequenceAtom(ir)) =>
+        if (il < ir)       List(makeNode(al, ar, tj()),
+                                makeNode(al, EventAtom(ir), ej()))
+        else               List(makeNode(al, ar, tj()))
+    }
+  }
 }
 
 
 object SimpleApp {
   def makeAtomNode(item: String, ids: List[(Long, Long)]) = {
-    Node(Array(SequenceAtom(item)), IdList(ids))
+    Node(List(SequenceAtom(item)), IdList(ids))
   }
 
   def main(args: Array[String]) {
