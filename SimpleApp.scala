@@ -69,6 +69,8 @@ case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
       })
       .reduce(_+_) + " [%s]".format(this.support)
 
+  def prefix: List[Atom] = sequence.tail
+
   def join(right: Node): List[Node] = {
     val Node(al :: prefix, idsLeft) = this
     val Node(ar :: prefixRight, idsRight) = right
@@ -116,7 +118,7 @@ object SimpleApp {
   }
 
   def main(args: Array[String]) {
-    val horizontalDbPath = "/home/pawel/dev/bolidupa/med/projekt/db.horizontal"
+    val horizontalDbPath = args(0)
     val minSup = 2
     val conf = new SparkConf().setAppName("Simple Application")
     val sc = new SparkContext(conf)
@@ -138,8 +140,18 @@ object SimpleApp {
       .filter(_.support >= minSup)
       .cache()
 
-    frequentItems.foreach(node => println(node))
-    enumerateFrequentSeq(minSup, frequentItems.collect()) // TODO
-      .foreach(node => println(node))
+    val frequent2Sequences = frequentItems.cartesian(frequentItems)
+      .flatMap(p => p._1.join(p._2))
+      .filter(_.support >= minSup)
+      .cache()
+
+    val classFrequentSequences = frequent2Sequences
+      .map(n => (n.prefix, n))
+      .groupByKey()
+      .flatMap(group => enumerateFrequentSeq(minSup, group._2))
+
+    val allFrequentSequences = frequentItems.union(classFrequentSequences)
+
+    allFrequentSequences.foreach(println)
   }
 }
