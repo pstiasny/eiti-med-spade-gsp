@@ -117,20 +117,25 @@ object SpadeApp {
     prefixClasses.flatMap(enumerateFrequentSeq(minSup, _)) ++ atomNodes
   }
 
-  def main(args: Array[String]) {
-    val horizontalDbPath = args(0)
-    val minSup = 2
-    val conf = new SparkConf().setAppName("Simple Application")
-    val sc = new SparkContext(conf)
-
-    val frequentItems = sc.textFile(horizontalDbPath)
+  def loadHorizontalDb(ctx: SparkContext, path: String) =
+    ctx.textFile(path)
       .map(line => {
+        // wczytaj linię o składni:
+        // <sid> <eid> <item1> ... <itemN>
         val ls = line.split(" ")
         val sid = ls(0).toLong
         val eid = ls(1).toLong
         val items = ls.slice(2, ls.length)
         (sid, eid, items)
       })
+
+  def main(args: Array[String]) {
+    val horizontalDbPath = args(0)
+    val minSup = 2
+    val conf = new SparkConf().setAppName("SPADE")
+    val sc = new SparkContext(conf)
+
+    val frequentItems = loadHorizontalDb(sc, horizontalDbPath)
       .flatMap(event => {
         val (sid, eid, items) = event
         items.map(item => (item, (sid, eid)))
@@ -141,14 +146,18 @@ object SpadeApp {
       .cache()
 
     val frequent2Sequences = frequentItems.cartesian(frequentItems)
-      .flatMap(p => p._1.join(p._2))
-      .filter(_.support >= minSup)
+                                      // Dla każdej pary przedmiotów częstych
+      .flatMap(p => p._1.join(p._2))  // złącz ją aby otrzymać sekwencje długości 2,
+      .filter(_.support >= minSup)    // Wybierz sekwencje częste.
       .cache()
 
     val classFrequentSequences = frequent2Sequences
-      .map(n => (n.prefix, n))
-      .groupByKey()
+      .map(n => (n.prefix, n))  // Wybierz klasy równoważności sekwencji
+                                // o wspólnych prefiksach długości 1,
+      .groupByKey()             // Połącz je we wspólne wiersze RDD,
       .flatMap(group => enumerateFrequentSeq(minSup, group._2))
+                                // Znajdź wszystkie sekwencje częste generowane
+                                // w klasach równoważności.
 
     val allFrequentSequences = frequentItems.union(classFrequentSequences)
 
