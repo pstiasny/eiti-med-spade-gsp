@@ -103,7 +103,7 @@ case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
 }
 
 
-object SimpleApp {
+object SpadeApp {
   def makeAtomNode(item: String, ids: List[(Long, Long)]) = {
     Node(List(SequenceAtom(item)), IdList(ids))
   }
