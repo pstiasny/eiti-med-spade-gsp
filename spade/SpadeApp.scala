@@ -74,7 +74,8 @@ case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
   def join(right: Node): List[Node] = {
     val Node(al :: prefix, idsLeft) = this
     val Node(ar :: prefixRight, idsRight) = right
-    require(prefix == prefixRight)
+    require(prefix == prefixRight,
+            "expected " + this + " and " + right + " to have identical prefixes")
 
     def tj() = idsLeft.temporalJoin(idsRight)
     def ej() = idsLeft.eventJoin(idsRight)
@@ -83,8 +84,8 @@ case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
 
     (al, ar) match {
       case (EventAtom(il), EventAtom(ir)) =>
-        if (il <= ir) List()
-        else          List(makeNode(ar, al, ej))
+        if (il >= ir) List()
+        else          List(makeNode(al, ar, ej))
 
       case (EventAtom(il), SequenceAtom(ir)) =>
         List(makeNode(al, ar, tj))
