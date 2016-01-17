@@ -1,29 +1,7 @@
 import System.Environment
+import qualified Data.Map as Map
 import Spade
-
-
-d :: Database
-d = [
-    ('A', [(1, 15),
-           (1, 20),
-           (1, 25),
-           (2, 15),
-           (3, 10),
-           (4, 25)]),
-    ('B', [(1, 15),
-           (1, 20),
-           (2, 15),
-           (3, 10),
-           (4, 20)]),
-    ('D', [(1, 10),
-           (1, 25),
-           (4, 10)]),
-    ('F', [(1, 20),
-           (1, 25),
-           (2, 15),
-           (3, 10),
-           (4, 20)])
-    ]
+import qualified IdList
 
 
 sequenceToHtml :: Sequence -> String
@@ -31,8 +9,8 @@ sequenceToHtml (Sequence l) =
     foldl (++) "" $ map atomToHtml $ reverse l
     where atomToHtml a =
             case a of
-                EventAtom ea -> [ea]
-                SequenceAtom sa -> " -&gt; " ++ [sa]
+                EventAtom ea -> ea
+                SequenceAtom sa -> " -&gt; " ++ sa
 
 printSequence node =
     do
@@ -53,10 +31,31 @@ printSequence node =
             then putStrLn $ "    \"" ++ seqStr ++ "\" -- \"{}\""
             else mapM_ printGeneratedBy (generatedBy node)
 
+loadHorizontalDb = do
+    ct <- getContents
+    let l = lines ct
+
+        readHdbLine :: String -> (IdList.Sid, IdList.Eid, [Item])
+        readHdbLine l =
+            let ws = words l
+            in  (read (ws!!0) :: Int, read (ws!!1) :: Int, drop 2 ws)
+        lw = map readHdbLine l
+
+        itemEvents :: [(Item, (IdList.Sid, IdList.Eid))]
+        itemEvents = foldMap (\(sid, eid, items) -> map (\item -> (item, (sid, eid))) items) lw
+        appendId :: (IdList.Sid, IdList.Eid) -> Maybe [(IdList.Sid, IdList.Eid)] -> Maybe [(IdList.Sid, IdList.Eid)]
+        appendId x (Just items) = Just (items ++ [x])
+        appendId x Nothing = Just [x]
+        itemMap = foldl (\acc (item, id_) -> Map.alter (appendId id_) item acc) Map.empty itemEvents
+
+    return $ Map.toList itemMap
+
 main = do
     args <- getArgs
 
-    let t = loadDatabase d
+    hdb <- loadHorizontalDb
+
+    let t = filter (\n -> support n >= 2) $ loadDatabase hdb
     let fs = enumerateFrequentSeq 2 t
 
     let showSeqSupport node = (show $ seq_ node) ++ " [" ++ (show $ support node) ++ "]"
@@ -66,4 +65,3 @@ main = do
             mapM_  printSequence fs
             putStrLn "}"
         else mapM_ putStrLn $ map showSeqSupport fs
-

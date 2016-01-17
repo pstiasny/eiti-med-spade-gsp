@@ -5,13 +5,13 @@ import Control.Exception
 import Data.List
 import Data.Foldable
 
-type Item = Char
+type Item = String
 type Database = [(Item, IdList)]
 
 data Atom = EventAtom Item | SequenceAtom Item deriving (Eq)
 instance Show Atom where
-    show (EventAtom a) = " " ++ [a]
-    show (SequenceAtom a) = "-> " ++ [a]
+    show (EventAtom a) = " " ++ a
+    show (SequenceAtom a) = "-> " ++ a
 
 data Sequence = Sequence [Atom]
 instance Show Sequence where
