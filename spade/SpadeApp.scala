@@ -90,9 +90,7 @@ case class Node(sequence: List[Atom], idList: IdList) extends Serializable {
         List(makeNode(al, ar, tj))
 
       case (SequenceAtom(il), EventAtom(ir)) =>
-        if (il < ir)       List(makeNode(al, ar, ej))
-        else if (il == ir) List()
-        else               List(makeNode(SequenceAtom(ir), EventAtom(il), ej))
+        List()
 
       case (SequenceAtom(il), SequenceAtom(ir)) =>
         if (il < ir)       List(makeNode(al, ar, tj),
