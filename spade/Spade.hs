@@ -45,11 +45,7 @@ generateCandidates left right =
 
         (EventAtom il, SequenceAtom ir) -> [makeNode al ar temporalMatched]
 
-        (SequenceAtom il, EventAtom ir) ->
-            case compare il ir of
-                LT -> [makeNode al ar eventMatched]
-                EQ -> []
-                GT -> [makeNode (SequenceAtom ir) (EventAtom il) eventMatched]
+        (SequenceAtom il, EventAtom ir) -> []
 
         (SequenceAtom il, SequenceAtom ir) ->
             case compare il ir of
