@@ -45,3 +45,5 @@ for rep in $(seq 1 1 3); do
     done
 done
 #22*4*4*3*2
+
+cat SPADE_LOG GSP_LOG | grep "GSP\|SPADE" | sed 's/Command exited with non-zero status 1/NA/' > data.txt
