@@ -1,6 +1,13 @@
-data <- read.csv(file="data.txt", header=F, sep=" ")
-colnames(data) <- c("method", "sequenceCount", "itemCount", "itemsPerItemset", "itemsetsPerSequence", "minSupport", "memoryLimit", "dummy", "time")
-data$dummy <- NULL
+data <- read.csv(
+  file="data.txt",
+  header=F,
+  sep="",
+  na.strings = c("NA")
+  #colClasses = c("factor", "character", "character", "character", "character", "double", "factor", "double")
+  )
+colnames(data) <- c("method", "sequenceCount", "itemCount", "itemsPerItemset", "itemsetsPerSequence", "minSupport", "memoryLimit", "time")
+data$method <- as.factor(data$method)
+data$memoryLimit <- as.factor(data$memoryLimit)
 
 library(dplyr)
 library(ggplot2)
@@ -15,10 +22,8 @@ data %>%
     labs(x="Długość sekwencji", y = "Średni czas [s]") +
     geom_point(shape=1) +
     scale_x_log10() +
-    scale_colour_hue(l=50) + # Use a slightly darker palette than normal
-    geom_smooth(method=lm,   # Add linear regression lines
-                se=FALSE,    # Don't add shaded confidence region
-                fullrange=TRUE) # Extend regression lines
+    scale_colour_hue(l=50) +
+    geom_smooth(method=lm, se=FALSE, fullrange=TRUE)
 
 data %>%
   filter(!is.na(time)) %>%
@@ -32,7 +37,24 @@ data %>%
   labs(x="Minimalna wartość wsparcia", y = "Średni czas [s]") +
   geom_point(aes(size = count), shape=1) +
   scale_x_log10() +
-  scale_colour_hue(l=50) + # Use a slightly darker palette than normal
-  geom_smooth(method=lm,   # Add linear regression lines
-              se=FALSE,    # Don't add shaded confidence region
-              fullrange=TRUE) # Extend regression lines
+  scale_colour_hue(l=50) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)
+
+max_time <- ceiling(max(data$time, na.rm = T))
+
+plot_vars <- function(...) {
+  data %>%
+    mutate(time = round(time)) %>%
+    group_by(...) %>%
+    summarise(
+      time = max(time, na.rm = T)
+    ) %>%
+    ggplot(aes(x, y)) +
+    geom_tile(aes(fill = time)) +
+    scale_fill_gradient(limits=c(0, max_time), low = "red", high = "green", na.value = "black", guide = "colourbar")
+}
+
+plot_vars(x = method, y = memoryLimit)
+plot_vars(x = method, y = minSupport)
+
+plot_vars(x = minSupport, y = memoryLimit)
