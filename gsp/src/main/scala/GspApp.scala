@@ -1,16 +1,10 @@
-import java.util.concurrent.TimeUnit
-
-import com.google.common.base.Stopwatch
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
-import org.slf4j.LoggerFactory
 
 import scala.collection.AbstractIterator
-import scala.concurrent.duration.FiniteDuration
 import scala.language.implicitConversions
 
 object sparkfixtures {
-
 
   implicit class Iterable2RddLike[T](iterable: Iterable[T]) {
     def count(): Long = iterable.size
@@ -117,7 +111,7 @@ object Gsp {
   import model._
 
   def mineGsp(data: Data, minSupport: Support): Iterator[SequentialPattern] = {
-    val generator: Iterator[List[SequentialPattern]] = new AbstractIterator[List[SequentialPattern]] {
+    val generator: Iterator[List[SequentialPattern]] = new Iterator[List[SequentialPattern]] {
       private var k = 1
       private var lastPatterns = data.frequentItems(minSupport)
 
@@ -153,12 +147,9 @@ object Gsp {
   }
 }
 
-case class RunResults(patternCount: Int, prepareTime: FiniteDuration, runTime: FiniteDuration)
-
 trait GspCommons {
   val minSupport = System.getenv("MIN_SUPPORT").toDouble
   val dataFile = System.getenv("DATA_FILE")
-  val logger = LoggerFactory.getLogger(getClass)
 
   import model._
 
@@ -177,21 +168,9 @@ trait GspCommons {
 
   def loadData: Data
 
-  implicit def stopwatchToDuration(stopwatch: Stopwatch): FiniteDuration = FiniteDuration(stopwatch.elapsed(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS)
-
-  def execute(): RunResults = {
-    val prepareStopwatch = new Stopwatch().start()
+  def execute(): Unit = {
     val loadedData = loadData
-    prepareStopwatch.stop()
-    val runStopwatch = new Stopwatch().start()
-    val patterns = Gsp.mineGsp(loadData, Support(minSupport)).zipWithIndex
-    val count = patterns.map { case (pattern, index) =>
-      logger.warn(s"Pattern $index found: $pattern")
-      index
-    }.size
-    val results = RunResults(count, prepareStopwatch, runStopwatch)
-    println(results)
-    results
+    Gsp.mineGsp(loadedData, Support(minSupport))
   }
 }
 
