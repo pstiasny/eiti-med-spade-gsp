@@ -15,8 +15,9 @@ library(ggplot2)
 data %>%
   group_by(method, sequenceCount) %>%
   summarise(
-    mean = mean(time, na.rm = TRUE)
+    mean = mean(time)
   ) %>%
+  mutate(mean = ifelse(is.na(mean), -1, mean)) %>%
   select(method, sequenceCount, mean) %>%
   ggplot(aes(x=sequenceCount, y=mean, color=method)) +
     labs(x="Długość sekwencji", y = "Średni czas [s]") +
@@ -26,13 +27,13 @@ data %>%
     geom_smooth(method=lm, se=FALSE, fullrange=TRUE)
 
 data %>%
-  filter(!is.na(time)) %>%
   mutate(time = round(time)) %>%
   group_by(method, minSupport, time) %>%
   summarise(
     count = n()
   ) %>%
   select(method, minSupport, time, count) %>%
+  mutate(time = ifelse(is.na(time), -1, time)) %>%
   ggplot(aes(x=minSupport, y=time, color=method)) +
   labs(x="Minimalna wartość wsparcia", y = "Średni czas [s]") +
   geom_point(aes(size = count), shape=1) +
@@ -40,12 +41,12 @@ data %>%
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE)
 
 data %>%
-  filter(!is.na(time)) %>%
   mutate(time = round(time)) %>%
   group_by(method, minSupport, sequenceCount) %>%
   summarise(
     time = mean(time)
   ) %>%
+  mutate(time = ifelse(is.na(time), -1, time)) %>%
   select(method, minSupport, sequenceCount, time) %>%
   ggplot(aes(x=minSupport, y=time, color=method)) +
   labs(x="Minimalna wartość wsparcia", y = "Średni czas [s]") +
