@@ -30,12 +30,11 @@ if [ ! -f "${INPUT_FILE_NAME}.spmf" ]; then
     $HADOOP fs -copyFromLocal $INPUT_FILE_NAME.horizontal /$INPUT_FILE_NAME.horizontal
 fi
 
-echo -n $@ " "
-echo -n "SPADESPARK" $1 $2 $3 $4 $5 1024 $6 " " >> SPADE_LOG
+echo -n "SPADESPARK" $1 $2 $3 $4 $5 1024 $6 " " >> LOG
 CMD="$SPARK --total-executor-cores $CORES --class SpadeSparkApp spade/target/scala-2.10/spade_2.10-0.0.1.jar hdfs:///$INPUT_FILE_NAME.horizontal $MIN_ABS_SUP"
-/usr/bin/time -f "%e" -o SPADE_LOG -a ${CMD} > /dev/null 2>/tmp/SPADE_ERR
+/usr/bin/time -f "%e" -o LOG -a ${CMD} > /dev/null 2>/tmp/SPADE_ERR
 echo "spade done"
-echo -n "GSPSPARK" $1 $2 $3 $4 $5 1024 $6 " " >> GSP_LOG
+echo -n "GSPSPARK" $1 $2 $3 $4 $5 1024 $6 " " >> LOG
 CMD="$SPARK --total-executor-cores $CORES --class GspSparkApp gsp/target/scala-2.10/eiti-med-gsp_2.10-1.0.jar hdfs:///$INPUT_FILE_NAME.spmf $MIN_SUPPORT"
-/usr/bin/time -f "%e" -o GSP_LOG -a ${CMD} > /dev/null 2>/tmp/GSP_ERR
+/usr/bin/time -f "%e" -o LOG -a ${CMD} > /dev/null 2>/tmp/GSP_ERR
 echo "gsp done"
