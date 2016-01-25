@@ -36,7 +36,20 @@ data %>%
   ggplot(aes(x=minSupport, y=time, color=method)) +
   labs(x="Minimalna wartość wsparcia", y = "Średni czas [s]") +
   geom_point(aes(size = count), shape=1) +
-  scale_x_log10() +
+  scale_colour_hue(l=50) +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)
+
+data %>%
+  filter(!is.na(time)) %>%
+  mutate(time = round(time)) %>%
+  group_by(method, minSupport, sequenceCount) %>%
+  summarise(
+    time = mean(time)
+  ) %>%
+  select(method, minSupport, sequenceCount, time) %>%
+  ggplot(aes(x=minSupport, y=time, color=method)) +
+  labs(x="Minimalna wartość wsparcia", y = "Średni czas [s]") +
+  geom_point(aes(size = sequenceCount), shape=1) +
   scale_colour_hue(l=50) +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE)
 
