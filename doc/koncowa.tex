@@ -47,6 +47,10 @@
 \setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
 
 \usepackage{listings}
+\usepackage{graphicx,epstopdf}
+%\epstopdfsetup{update}
+%\DeclareGraphicsExtensions{.ps}
+%\epstopdfDeclareGraphicsRule{.ps}{pdf}{.pdf}{ps2pdf -dEPSCrop -dNOSAFER #1 \OutputFile}
 \usepackage{hyperref}
 
 
@@ -143,6 +147,11 @@ Algorytm ten korzysta z wydajnej pośredniej reprezentacji zbioru sekwencji
 częstych.
 
 \subsubsection{Struktury danych}
+\begin{figure}
+\includegraphics[scale=0.6]{graph.pdf}
+\caption{Klasy równoważności wygenerowane przez prototypową implementację SPADE}
+\end{figure}
+
 Budowany jest graf reprezentujący podkratę relacji zawierania sekwencji.  W
 kracie tej poprzednikami \( k \)-elementowej sekwencji są dwie \( k-1 \)
 -elemetnowe sekwencje o wspólnym, \( k-2 \)-elementowym prefixie.  Następniki
