@@ -1,0 +1,39 @@
+#!/bin/bash 
+
+
+SPARK="/root/spark/bin/spark-submit --master $SPARK_MASTER"
+HADOOP="/root/ephemeral-hdfs/bin/hadoop"
+
+
+NUM_SEQUENCES=$1
+NUM_ITEMS=$2
+ITEMS_PER_ITEMSET=$3
+ITEMSETS_PER_SEQ=$4
+export MIN_SUPPORT="$5"
+export MIN_ABS_SUP="$( echo "scale=0; $NUM_SEQUENCES * $MIN_SUPPORT / 1" | bc )"
+CORES=$6
+echo $@
+
+INPUT_FILE_NAME="ns$NUM_SEQUENCES-ni$NUM_ITEMS-ipi$ITEMS_PER_ITEMSET-ips$ITEMSETS_PER_SEQ"
+
+if [ ! -f "${INPUT_FILE_NAME}.spmf" ]; then
+    java8 -jar spmf.jar run \
+        Generate_a_sequence_database_with_timestamps no_input_file $INPUT_FILE_NAME.spmf \
+        $NUM_SEQUENCES $NUM_ITEMS $ITEMS_PER_ITEMSET $ITEMSETS_PER_SEQ \
+        > /dev/null
+    scripts/spmf2horizontal.py < $INPUT_FILE_NAME.spmf > $INPUT_FILE_NAME.horizontal
+
+    $HADOOP fs -rm -f /$INPUT_FILE_NAME.horizontal /$INPUT_FILE_NAME.spmf
+    $HADOOP fs -copyFromLocal $INPUT_FILE_NAME.spmf /$INPUT_FILE_NAME.spmf
+    $HADOOP fs -copyFromLocal $INPUT_FILE_NAME.horizontal /$INPUT_FILE_NAME.horizontal
+fi
+
+echo -n $@ " "
+echo -n "SPADESPARK" $1 $2 $3 $4 $5 1024 $6 " " >> SPADE_LOG
+CMD="$SPARK --total-executor-cores $CORES --class SpadeSparkApp spade/target/scala-2.10/spade_2.10-0.0.1.jar hdfs:///$INPUT_FILE_NAME.horizontal $MIN_ABS_SUP"
+/usr/bin/time -f "%e" -o SPADE_LOG -a ${CMD} > /dev/null 2>/tmp/SPADE_ERR
+echo "spade done"
+echo -n "GSPSPARK" $1 $2 $3 $4 $5 1024 $6 " " >> GSP_LOG
+CMD="$SPARK --total-executor-cores $CORES --class GspSparkApp gsp/target/scala-2.10/eiti-med-gsp_2.10-1.0.jar hdfs:///$INPUT_FILE_NAME.spmf $MIN_SUPPORT"
+/usr/bin/time -f "%e" -o GSP_LOG -a ${CMD} > /dev/null 2>/tmp/GSP_ERR
+echo "gsp done"

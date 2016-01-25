@@ -148,9 +148,6 @@ object Gsp {
 }
 
 trait GspCommons {
-  val minSupport = System.getenv("MIN_SUPPORT").toDouble
-  val dataFile = System.getenv("DATA_FILE")
-
   import model._
 
   def lineToDataSequence(line: String): DataSequence = {
@@ -166,38 +163,45 @@ trait GspCommons {
     DataSequence(transactions.toList)
   }
 
-  def loadData: Data
-
-  def execute(): Unit = {
-    val loadedData = loadData
-    Gsp.mineGsp(loadedData, Support(minSupport))
-  }
 }
 
 object GspPureApp extends App with GspCommons {
 
   import sparkfixtures._
 
-  def loadData = {
-    val sequences = scala.io.Source.fromFile(dataFile).getLines()
-      .map(lineToDataSequence)
-      .cache()
-    model.DataCollection(sequences)
-  }
 
-  execute()
+  override def main(args: Array[String]) {
+    val dataFile = args(0)
+    val minSupport = args(1).toDouble
+
+    def loadData = {
+      val sequences = scala.io.Source.fromFile(dataFile).getLines()
+        .map(lineToDataSequence)
+        .cache()
+      model.DataCollection(sequences)
+    }
+
+    val loadedData = loadData
+    Gsp.mineGsp(loadedData, model.Support(minSupport))
+  }
 }
 
 object GspSparkApp extends App with GspCommons {
+  override def main(args: Array[String]) {
+    val dataFile = args(0)
+    val minSupport = args(1).toDouble
 
-  val conf = new SparkConf().setAppName(getClass.getSimpleName).set("spark.eventLog.enabled", "true")
-  val sc = new SparkContext(conf)
-  def loadData = {
-    val sequences = sc.textFile(dataFile)
-      .map(lineToDataSequence)
-      .cache()
-    model.DataRdd(sequences)
+    val conf = new SparkConf().setAppName(s"GSP ${dataFile} ${minSupport}")
+    val sc = new SparkContext(conf)
+
+    def loadData = {
+      val sequences = sc.textFile(dataFile)
+        .map(lineToDataSequence)
+        .cache()
+      model.DataRdd(sequences)
+    }
+
+    val loadedData = loadData
+    Gsp.mineGsp(loadedData, model.Support(minSupport))
   }
-
-  execute()
 }

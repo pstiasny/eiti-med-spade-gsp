@@ -134,8 +134,8 @@ object SpadeSparkApp {
 
   def main(args: Array[String]) {
     val horizontalDbPath = args(0)
-    val minSup = System.getenv("MIN_ABS_SUP").toLong
-    val conf = new SparkConf().setAppName("SPADE")
+    val minSup = args(1).toLong
+    val conf = new SparkConf().setAppName(s"SPADE ${horizontalDbPath} ${minSup}")
     val sc = new SparkContext(conf)
 
     val frequentItems = loadHorizontalDb(sc, horizontalDbPath)
@@ -182,7 +182,7 @@ object SpadePureApp {
 
   def main(args: Array[String]) {
     val horizontalDbPath = args(0)
-    val minSup = System.getenv("MIN_ABS_SUP").toLong
+    val minSup = args(1).toLong
 
     val frequentItems = scala.io.Source.fromFile(horizontalDbPath).getLines()
       .map(readLine)
