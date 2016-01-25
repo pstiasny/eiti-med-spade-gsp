@@ -1,8 +1,10 @@
 #!/bin/bash 
 
 
-SPARK="/root/spark/bin/spark-submit --master $SPARK_MASTER"
+SPARK="/root/spark/bin/spark-submit --conf spark.eventLog.enabled=true --master $SPARK_MASTER"
 HADOOP="/root/ephemeral-hdfs/bin/hadoop"
+
+mkdir -p /tmp/spark-events
 
 
 NUM_SEQUENCES=$1

@@ -8,7 +8,7 @@ for cores in 1 2 3 4; do
 done
 
 for num_sequences in 10 100 1000 10000 100000 1000000; do
-    scripts/run_spark_experiment ${num_sequences} 100 3 10 0.${support} 4
+    scripts/run_spark_experiment ${num_sequences} 100 3 10 0.4 4
 done
 
 for support in $(seq 1 2 9); do
