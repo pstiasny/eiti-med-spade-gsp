@@ -46,7 +46,9 @@
 
 \setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
 
+\usepackage{listings}
 \usepackage{hyperref}
+
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -227,6 +229,59 @@ uruchomiliśmy klaster na platformie Amazon AWS.  W skład klastra wchodzi
 
 Testy przeprowadziliśmy też na w wersji bez użycia Spark.
 
+\section{Uruchamianie aplikacji}
+W ramach projektu stworzyliśmy dwie niezależne aplikacje w Scali.
+Do skompilowania i uruchomienia potrzebne są: maszyna wirtaulna Javy -- JVM,
+silnik budowania sbt.  Aby uruchomić wersję na platformę Apache Spark konieczny jest
+również działający klaster Spark oraz zestaw narzędzi do jego obsługi.
+
+\subsection{GSP - wersja lokalna}
+\begin{lstlisting}
+    $ cd gsp
+    $ sbt package
+    $ sbt "run-main GspPureApp <plik> <wsparcie wzgledne>"
+\end{lstlisting}
+
+Gdzie plik to baza danych w formacie obsługiwanym przez SPMF a wsparcie względne to
+liczba od 0 do 1.
+
+\subsection{SPADE - wersja lokalna}
+\begin{lstlisting}
+    $ cd spade
+    $ sbt package
+    $ sbt "run-main SpadePureApp <plik> <wsparcie bezwzgledne>"
+\end{lstlisting}
+
+Plik to baza danych w formacie:
+\begin{lstlisting}
+    <SID> <EID> <item1> ... <itemN>
+    ...
+\end{lstlisting}
+
+W katalogu scripts znajduje się też skrypt do konwersji z formatu SPMF.
+
+\subsubsection{Uruchamianie w klastrze Spark}
+Do uruchamiania aplikacji w klastrze należy posłużyć się narzędziem spark-submit.
+Wysyła ono aplikację jako zadanie do wykonania przez klaster.
+
+Poniższy przykład ilustruje uruchomienie aplikacji w klastrze uruchomionym
+na maszynie developerskiej.  Aby wysłać zadanie do faktycznego klastra należy
+zmodyfikować odpowiednio argument "--master".
+
+\begin{lstlisting}
+$ $SPARK\PATH/bin/spark-submit --master local[4] \
+    --class SpadeSparkApp spade/target/scala-2.10/spade_2.10-0.0.1.jar \
+    <plik> <wspacie bezwzgledne>
+$ $SPARK_PATH/bin/spark-submit --master local[4] \
+    --class GspSparkApp gsp/target/scala-2.10/eiti-med-gsp_2.10-1.0.jar \
+    <plik> <wspacie wzgledne>
+\end{lstlisting}
+
+Znaczenie argumentów plików i wsparcia są takie jak w wersji lokalnej.
+
+Przykłady uruchomienia w klastrze można znaleźć w skryptach testowych.
+
+
 \section{Przebieg testów}
 Przetestowaliśmy dwie wersje implementacji: na platformie Apache Spark i lokalną.
 Skrypty do uruchamiania testów umieściliśmy w plikach perf.sh i perf.spark.sh.
@@ -238,6 +293,8 @@ Testowany był czas wykonania przy zmienności następujących parametrów:
     \item Liczby sekwencji w bazie,
     \item Wartości minimalnego wsparcia.
 \end{itemize}
+
+Do generowania danych testowych użyliśmy aplikacji SPMF.
 
 \renewcommand{\refname}{Bibliografia}
 
